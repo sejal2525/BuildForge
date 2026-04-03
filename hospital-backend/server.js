@@ -10,195 +10,120 @@ app.use(express.json());
 
 const SECRET = "mysecretkey";
 
-// ================= DATABASE =================
+// DB
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root',
-  password: 'root123', // 🔥 change this
+  user: 'appuser',
+  password: '123456',
   database: 'hospital_db'
 });
 
 db.connect(err => {
-  if (err) {
-    console.log("DB Error:", err);
-  } else {
-    console.log("MySQL Connected");
-  }
+  if (err) console.log("DB Error:", err);
+  else console.log("MySQL Connected");
 });
 
-
-// ================= AUTH =================
-
-// REGISTER
+// AUTH
 app.post('/api/register', async (req, res) => {
   const { name, email, password, phone } = req.body;
+  const hash = await bcrypt.hash(password, 10);
 
-  if (!name || !email || !password || !phone) {
-    return res.status(400).json({ message: "All fields required" });
-  }
-
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    db.query(
-      "INSERT INTO users (name, email, password, phone) VALUES (?, ?, ?, ?)",
-      [name, email, hashedPassword, phone],
-      (err) => {
-        if (err) {
-          if (err.code === "ER_DUP_ENTRY") {
-            return res.status(400).json({ message: "Email already exists" });
-          }
-          return res.status(500).json({ message: "Database error" });
-        }
-
-        res.json({ message: "User registered successfully" });
-      }
-    );
-
-  } catch {
-    res.status(500).json({ message: "Server error" });
-  }
+  db.query(
+    "INSERT INTO users (name,email,password,phone) VALUES (?,?,?,?)",
+    [name, email, hash, phone],
+    err => {
+      if (err) return res.json({ message: "Error" });
+      res.json({ message: "User registered successfully" });
+    }
+  );
 });
 
-
-// LOGIN
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: "All fields required" });
-  }
+  db.query("SELECT * FROM users WHERE email=?", [email], async (err, result) => {
+    if (result.length === 0) return res.json({ message: "User not found" });
 
-  db.query("SELECT * FROM users WHERE email = ?", [email], async (err, result) => {
-    if (err) return res.status(500).json({ message: "Database error" });
+    const match = await bcrypt.compare(password, result[0].password);
+    if (!match) return res.json({ message: "Wrong password" });
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const user = result[0];
-
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
-
-    const token = jwt.sign({ email: user.email }, SECRET, { expiresIn: "1h" });
-
-    res.json({
-      message: "Login successful",
-      token: token
-    });
+    const token = jwt.sign({ email }, SECRET, { expiresIn: "1h" });
+    res.json({ token });
   });
 });
 
-
-// ================= MIDDLEWARE =================
-
+// MIDDLEWARE
 function verifyToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
+  const header = req.headers.authorization;
+  if (!header) return res.json({ message: "Token required" });
 
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token required" });
-  }
-
-  if (!authHeader.startsWith("Bearer ")) {
-    return res.status(400).json({ message: "Invalid token format" });
-  }
-
-  const token = authHeader.split(' ')[1];
+  const token = header.split(" ")[1];
 
   jwt.verify(token, SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid or expired token" });
-    }
-
+    if (err) return res.json({ message: "Invalid token" });
     req.user = user;
     next();
   });
 }
 
-
-// ================= TEST ROUTES =================
-
-// PROFILE
-app.get('/api/profile', verifyToken, (req, res) => {
-  res.json({
-    message: "User profile fetched successfully",
-    email: req.user.email
-  });
-});
-
-
-// ================= APPOINTMENTS =================
-
-// 🔥 BOOK APPOINTMENT
+// BOOK
 app.post('/api/book', verifyToken, (req, res) => {
   const { doctor_name, appointment_date } = req.body;
-  const user_email = req.user.email;
-
-  if (!doctor_name || !appointment_date) {
-    return res.status(400).json({ message: "All fields required" });
-  }
 
   db.query(
-    "INSERT INTO appointments (user_email, doctor_name, appointment_date) VALUES (?, ?, ?)",
-    [user_email, doctor_name, appointment_date],
-    (err) => {
-      if (err) {
-        console.log("DB ERROR:", err);
-        return res.status(500).json({ message: "Booking failed" });
-      }
-
+    "INSERT INTO appointments (user_email,doctor_name,appointment_date) VALUES (?,?,?)",
+    [req.user.email, doctor_name, appointment_date],
+    err => {
+      if (err) return res.json({ message: "Error booking" });
       res.json({ message: "Appointment booked successfully" });
     }
   );
 });
 
-
-// 🔥 VIEW APPOINTMENTS
+// VIEW
 app.get('/api/appointments', verifyToken, (req, res) => {
-  const user_email = req.user.email;
-
   db.query(
-    "SELECT * FROM appointments WHERE user_email = ?",
-    [user_email],
+    "SELECT * FROM appointments WHERE user_email=?",
+    [req.user.email],
     (err, result) => {
-      if (err) {
-        console.log("FETCH ERROR:", err);
-        return res.status(500).json({ message: "Error fetching appointments" });
-      }
-
       res.json(result);
     }
   );
 });
 
-
-// 🔥 DELETE APPOINTMENT
+// DELETE
 app.delete('/api/appointments/:id', verifyToken, (req, res) => {
-  const id = req.params.id;
-  const user_email = req.user.email;
+  db.query(
+    "DELETE FROM appointments WHERE id=? AND user_email=?",
+    [req.params.id, req.user.email],
+    () => res.json({ message: "Deleted" })
+  );
+});
 
-  const sql = "DELETE FROM appointments WHERE id = ? AND user_email = ?";
+// UPDATE
+app.put('/api/appointments/:id', verifyToken, (req, res) => {
+  db.query(
+    "UPDATE appointments SET appointment_date=? WHERE id=? AND user_email=?",
+    [req.body.appointment_date, req.params.id, req.user.email],
+    () => res.json({ message: "Updated" })
+  );
+});
 
-  db.query(sql, [id, user_email], (err, result) => {
-    if (err) {
-      return res.status(500).json({ message: "Error deleting appointment" });
-    }
+// REVIEWS
+app.post('/api/review', verifyToken, (req, res) => {
+  const { doctor_name, rating, comment } = req.body;
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Appointment not found or unauthorized" });
-    }
+  db.query(
+    "INSERT INTO reviews (user_email,doctor_name,rating,comment) VALUES (?,?,?,?)",
+    [req.user.email, doctor_name, rating, comment],
+    () => res.json({ message: "Review added" })
+  );
+});
 
-    res.json({ message: "Appointment deleted successfully" });
+app.get('/api/reviews', verifyToken, (req, res) => {
+  db.query("SELECT * FROM reviews", (err, result) => {
+    res.json(result);
   });
 });
 
-
-// ================= SERVER =================
-
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
-});
+app.listen(3000, () => console.log("Server running on port 3000"));
