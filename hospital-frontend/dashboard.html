@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+  <h2>Dashboard</h2>
+
+  <p id="welcome"></p>
+
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+
+// 🚫 If no token → redirect
+if (!token) {
+  alert("Please login first!");
+  window.location = "index.html";
+}
+
+// ✅ Optional: decode token (just email display)
+function parseJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch {
+    return null;
+  }
+}
+
+const user = parseJwt(token);
+
+if (user && user.email) {
+  document.getElementById("welcome").innerText =
+    "Welcome, " + user.email + " 🎉";
+}
+
+// LOGOUT
+function logout() {
+  localStorage.removeItem("token");
+  window.location = "index.html";
+}
+</script>
+
+</body>
+</html>
