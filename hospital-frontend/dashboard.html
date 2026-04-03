@@ -1,47 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+<title>Dashboard</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="card">
-  <h2>Dashboard</h2>
 
-  <p id="welcome"></p>
+<h2>Dashboard</h2>
+<p id="welcome"></p>
 
-  <button onclick="logout()">Logout</button>
+<h3>Book Appointment</h3>
+<input id="doctor">
+<input id="date" type="date">
+<button onclick="book()">Book</button>
+
+<p id="msg"></p>
+
+<h3>Appointments</h3>
+<button onclick="loadAppointments()">Load</button>
+<ul id="list"></ul>
+
+<h3>Review</h3>
+<input id="revDoctor">
+<input id="rating">
+<input id="comment">
+<button onclick="addReview()">Submit</button>
+
+<button onclick="loadReviews()">Load Reviews</button>
+<ul id="reviewList"></ul>
+
+<button onclick="logout()">Logout</button>
+
 </div>
 
+<script src="script.js"></script>
+
 <script>
-const token = localStorage.getItem("token");
-
-// 🚫 If no token → redirect
-if (!token) {
-  alert("Please login first!");
-  window.location = "index.html";
-}
-
-// ✅ Optional: decode token (just email display)
-function parseJwt(token) {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch {
-    return null;
-  }
-}
-
-const user = parseJwt(token);
-
-if (user && user.email) {
-  document.getElementById("welcome").innerText =
-    "Welcome, " + user.email + " 🎉";
-}
-
-// LOGOUT
-function logout() {
-  localStorage.removeItem("token");
+if (!localStorage.getItem("token")) {
   window.location = "index.html";
 }
 </script>
