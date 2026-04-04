@@ -1,4 +1,3 @@
-**
 ## 📌 Sequence Diagram (Appointment Booking)
 ```mermaid
 sequenceDiagram
@@ -9,9 +8,9 @@ sequenceDiagram
     Patient->>System: Login
     System-->>Patient: Login Successful
 
-    Patient->>System: Request Appointment
+    Patient->>System: Book Appointment
     System->>Doctor: Check Availability
     Doctor-->>System: Available
 
     System-->>Patient: Appointment Confirmed
-```**
+```
