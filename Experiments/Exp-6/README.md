@@ -1,20 +1,4 @@
-# Exp-6  
- 
-## Aim  
-To perform Exp-6 in hospital appointment system  
- 
-## Tools Used  
-- Node.js  
-- Azure DevOps  
-- GitHub  
- 
-## Procedure  
-1. Step 1  
-2. Step 2  
-3. Step 3  
- 
-## Output  
-Screenshots attached  
- 
-## Result  
-Experiment completed successfully 
+# Experiment 6 - CI/CD 
+Aim: To implement CI/CD.
+Tools: Azure DevOps
+Result: CI/CD working.

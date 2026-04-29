@@ -1,20 +1,4 @@
-# Exp-5  
- 
-## Aim  
-To perform Exp-5 in hospital appointment system  
- 
-## Tools Used  
-- Node.js  
-- Azure DevOps  
-- GitHub  
- 
-## Procedure  
-1. Step 1  
-2. Step 2  
-3. Step 3  
- 
-## Output  
-Screenshots attached  
- 
-## Result  
-Experiment completed successfully 
+# Experiment 5 - Azure Pipeline 
+Aim: To create CI pipeline.
+Tools: Azure DevOps
+Result: Pipeline executed successfully.
