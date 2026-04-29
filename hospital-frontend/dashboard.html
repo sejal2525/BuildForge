@@ -1,47 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Dashboard</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="card">
-
+<div class="container">
 <h2>Dashboard</h2>
-<p id="welcome"></p>
-
-<h3>Book Appointment</h3>
-<input id="doctor">
-<input id="date" type="date">
-<button onclick="book()">Book</button>
-
-<p id="msg"></p>
-
-<h3>Appointments</h3>
-<button onclick="loadAppointments()">Load</button>
-<ul id="list"></ul>
-
-<h3>Review</h3>
-<input id="revDoctor">
-<input id="rating">
-<input id="comment">
-<button onclick="addReview()">Submit</button>
-
-<button onclick="loadReviews()">Load Reviews</button>
-<ul id="reviewList"></ul>
-
-<button onclick="logout()">Logout</button>
-
+<button onclick="location.href='booking.html'">Book</button>
+<button onclick="location.href='view.html'">View</button>
 </div>
-
-<script src="script.js"></script>
-
-<script>
-if (!localStorage.getItem("token")) {
-  window.location = "index.html";
-}
-</script>
 
 </body>
 </html>

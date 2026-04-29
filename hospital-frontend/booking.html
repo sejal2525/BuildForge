@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Booking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>📅 Book Appointment</h2>
+
+  <!-- NAME -->
+  <input id="name" placeholder="Your Name">
+
+  <!-- DOCTOR CARDS -->
+  <div class="doctor-list">
+    <div class="doctor-card" onclick="selectDoctor(this,'Dr Ravi')">
+      <img src="https://i.pravatar.cc/60?img=1"><br>Dr Ravi
+    </div>
+
+    <div class="doctor-card" onclick="selectDoctor(this,'Dr Meena')">
+      <img src="https://i.pravatar.cc/60?img=5"><br>Dr Meena
+    </div>
+
+    <div class="doctor-card" onclick="selectDoctor(this,'Dr Arjun')">
+      <img src="https://i.pravatar.cc/60?img=3"><br>Dr Arjun
+    </div>
+
+    <div class="doctor-card" onclick="selectDoctor(this,'Dr Priya')">
+      <img src="https://i.pravatar.cc/60?img=8"><br>Dr Priya
+    </div>
+  </div>
+
+  <!-- SHOW SELECTED DOCTOR -->
+  <p id="selectedDoc"></p>
+
+  <!-- DATE -->
+  <input id="date" type="date">
+
+  <!-- TIME SLOTS -->
+  <div class="slots">
+    <div class="slot" onclick="selectSlot(this,'10 AM')">10 AM</div>
+    <div class="slot" onclick="selectSlot(this,'12 PM')">12 PM</div>
+    <div class="slot" onclick="selectSlot(this,'2 PM')">2 PM</div>
+    <div class="slot" onclick="selectSlot(this,'4 PM')">4 PM</div>
+  </div>
+
+  <!-- BUTTON -->
+  <button onclick="book()">Book</button>
+
+</div>
+
+<script>
+let selectedDoctor = "";
+let selectedTime = "";
+
+// SELECT DOCTOR
+function selectDoctor(el, doctor){
+  document.querySelectorAll('.doctor-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDoctor = doctor;
+
+  document.getElementById('selectedDoc').innerText = "Selected: " + doctor;
+}
+
+// SELECT TIME
+function selectSlot(el, time){
+  document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTime = time;
+}
+
+// DISABLE PAST DATES
+document.getElementById("date").min = new Date().toISOString().split("T")[0];
+
+// BOOK FUNCTION (FIXED)
+function book(){
+  let nameVal = document.getElementById('name').value;
+  let dateVal = document.getElementById('date').value;
+
+  if(!nameVal || !selectedDoctor || !dateVal || !selectedTime){
+    alert("Fill all");
+    return;
+  }
+
+  fetch('http://localhost:3000/appointment',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      name: nameVal,
+      doctor: selectedDoctor + " " + selectedTime,
+      date: dateVal
+    })
+  })
+  .then(res=>res.text())
+  .then(data=>{
+    alert(data);
+    window.location.href = "view.html";
+  });
+}
+</script>
+
+</body>
+</html>

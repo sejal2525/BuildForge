@@ -1,0 +1,26 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo "Pipeline Running"
+  displayName: 'Start'
+
+- script: echo "Build Successful"
+  displayName: 'Build Step'
+
+
+
+
+
+
+
+
+
+
+
+
+
+

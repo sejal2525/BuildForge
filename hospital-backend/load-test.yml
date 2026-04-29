@@ -1,0 +1,13 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+scenarios:
+  - flow:
+      - post:
+          url: "/appointment"
+          json:
+            name: "LoadUser"
+            doctor: "Dr Ravi"
+            date: "2026-05-01"

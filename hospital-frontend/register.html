@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Register</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="card">
+<div class="container">
 <h2>Register</h2>
-
 <input id="name" placeholder="Name">
 <input id="email" placeholder="Email">
-<input id="password" type="password">
-<input id="phone" placeholder="Phone">
-
+<input id="password" placeholder="Password">
 <button onclick="register()">Register</button>
-
-<p id="msg"></p>
-
-<a href="index.html">Login</a>
 </div>
 
-<script src="script.js"></script>
+<script>
+function register(){
+fetch('http://localhost:3000/register',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+name:name.value,
+email:email.value,
+password:password.value
+})
+})
+.then(res=>res.text())
+.then(d=>{
+alert(d);
+location.href="login.html";
+});
+}
+</script>
+
 </body>
 </html>

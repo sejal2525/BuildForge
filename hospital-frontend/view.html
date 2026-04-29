@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h3>Admin Panel</h3> 
+<h2>📋 Appointments</h2>
+
+<table border="1" width="100%" style="background:white;color:black;border-radius:10px;">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Doctor</th>
+      <th>Date</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+</div>
+
+<script>
+function loadAppointments(){
+fetch('http://localhost:3000/appointments')
+.then(res=>res.json())
+.then(data=>{
+  let body = document.getElementById('tableBody');
+  body.innerHTML = "";
+
+  data.forEach(a=>{
+    let row = `
+      <tr>
+        <td>${a.id}</td>
+        <td>${a.name}</td>
+        <td>${a.doctor}</td>
+        <td>${a.date}</td>
+        <td>
+          <button onclick="deleteApp(${a.id})">❌ Cancel</button>
+        </td>
+      </tr>
+    `;
+    body.innerHTML += row;
+  });
+});
+}
+
+// DELETE FUNCTION
+function deleteApp(id){
+if(confirm("Cancel this appointment?")){
+  fetch('http://localhost:3000/appointment/' + id, {
+    method:'DELETE'
+  })
+  .then(res=>res.text())
+  .then(()=>{
+    alert("Cancelled");
+    loadAppointments();
+  });
+}
+}
+
+// LOAD ON START
+loadAppointments();
+</script>
+
+</body>
+</html>
